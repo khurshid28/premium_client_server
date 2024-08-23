@@ -13,7 +13,9 @@
 --     status varchar(255) default "default",
 --     limit_summa double,
 --     expired TIMESTAMP,
---     pinfl varchar(255)
+--     pinfl varchar(255),
+--     created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     verified_time TIMESTAMP,
 --  );
 
 
