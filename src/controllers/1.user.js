@@ -62,13 +62,27 @@ class Users {
 
           // let otpCode = generateOTP();
           let otpCode = "123123";
+          let otpItem =
+
+        await new Promise(function (resolve, reject) {
           db.query(
-            `insert into Otp (otp,client_id)   values ('${otpCode}',${user.id})  ;`
-          );
+            `insert into Otp (otp,client_id,id)   values ('${otpCode}',${user.id}, REPLACE(MD5(UUID()),'-','') )  ;`,
+              function (err, results, fields) {
+                console.log("err", err);
+                if (err) {
+                  resolve(null);
+                  return null;
+                }
+                return resolve(results);
+              }
+            );
+          });
+         
 
           return res.status(200).json({
-            id: user.id,
-            otpCode: otpCode,
+            id: otpItem.id,
+            message :"sent code successfully"
+            // otpCode: otpCode,
           });
         } catch (error) {}
       }
@@ -83,12 +97,14 @@ class Users {
   async verify(req, res, next) {
   
     const { id, otpCode } = req.body;
+   
+
     console.log(id);
     let userVerify;
     try {
       userVerify = await new Promise(function (resolve, reject) {
         db.query(
-          `SELECT otp ,created_time FROM Otp WHERE client_id=${id};`,
+          `SELECT code,created_time FROM Otp WHERE client_id=${req.user.id} and id=${id};`,
           function (err, results, fields) {
             if (err) {
               resolve(null);
