@@ -27,6 +27,7 @@
 --     id varchar(40) PRIMARY KEY NOT NULL,  
 --     code varchar(255),
 --     client_id int,
+--     used boolean default false,
 --     created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 -- );
 
