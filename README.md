@@ -23,3 +23,17 @@
 
 
 
+-- CREATE TABLE Otp (
+--     id varchar(40) PRIMARY KEY NOT NULL,  
+--     code varchar(255),
+--     client_id int,
+--     created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+
+-- insert into Otp (code,client_id,id)   values ("123123",1, REPLACE(MD5(UUID()),'-','') ) ;
+
+select * from Otp;
+
+
+
+
