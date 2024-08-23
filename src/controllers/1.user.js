@@ -1,13 +1,12 @@
-
 const { log } = require("logrocket");
 let db = require("../config/db");
 const { BadRequestError, InternalServerError } = require("../utils/errors");
-const jwt=require("../utils/jwt")
+const jwt = require("../utils/jwt");
 
 class Users {
   async send(req, res, next) {
     const { phoneNumber } = req.body;
-  
+
     if (phoneNumber) {
       let existUser;
       try {
@@ -62,11 +61,9 @@ class Users {
 
           // let otpCode = generateOTP();
           let otpCode = "123123";
-          let otpItem =
-
-        await new Promise(function (resolve, reject) {
-          db.query(
-            `insert into Otp (otp,client_id,id)   values ('${otpCode}',${user.id}, REPLACE(MD5(UUID()),'-','') )  ;`,
+          let otpItem = await new Promise(function (resolve, reject) {
+            db.query(
+              `insert into Otp (otp,client_id,id)   values ('${otpCode}',${user.id}, REPLACE(MD5(UUID()),'-','') )  ;`,
               function (err, results, fields) {
                 console.log("err", err);
                 if (err) {
@@ -77,27 +74,22 @@ class Users {
               }
             );
           });
-         
 
           return res.status(200).json({
             id: otpItem.id,
-            message :"sent code successfully"
-            // otpCode: otpCode,
+            message: "sent code successfully",
+            
           });
         } catch (error) {}
       }
     } else {
-      // res.status(404).json({
-      //   message: "you mast enter phone number !",
-      // });
+    
       return next(new BadRequestError(400, "you must enter phone number !"));
     }
   }
 
   async verify(req, res, next) {
-  
     const { id, otpCode } = req.body;
-   
 
     console.log(id);
     let userVerify;
@@ -116,7 +108,7 @@ class Users {
       });
     } catch (error) {
       console.log("error:", error);
-    } 
+    }
     if (!userVerify) {
       return res.status(400).json({ message: "no user found !" });
     }
@@ -144,11 +136,10 @@ class Users {
           }
         );
       });
-     
+
       return res.status(200).json({
         message: "success",
-        client : user
-       
+        client: user,
       });
     }
     return res.status(400).json({
@@ -157,15 +148,14 @@ class Users {
     // return next(new BadRequestError(400,"otp code is invalid or time is up !"))
   }
   async adminLogin(req, res, next) {
-    
-
-    const {id, loginName,loginPassword } = req.body;
+    const { id, loginName, loginPassword } = req.body;
     if (!loginName || !loginPassword || !id) {
-       return res.status(400).json({ message: "you must enter login credentials !" });
+      return res
+        .status(400)
+        .json({ message: "you must enter login credentials !" });
     }
-       console.log("loginPassword", "loginName", loginPassword, loginName);
+    console.log("loginPassword", "loginName", loginPassword, loginName);
     if (loginName.length > 6 && loginPassword.length > 6) {
-    
       let admin;
       try {
         admin = await new Promise(function (resolve, reject) {
@@ -185,76 +175,57 @@ class Users {
         console.log("error:", error);
       }
 
-        if (admin) {
-            const token = jwt.sign({
-              id: admin.id,
-              phoneNumber: admin.phoneNumber,
-              role: admin.role,
-            });
-            return res.status(200).json({
-              message: "ok",
-              data: {
-                id: admin.id,
-                phoneNumber: admin.phoneNumber,
-                role: admin.role,
-              },
-              token: token,
-            });
-        }
-        else{
-        return res.status(400).json({message: "user not found !"})
-        }
-    }
-
-
-
-    else{
-      return next(new BadRequestError(400, "Invalid login or Password !"))
+      if (admin) {
+        const token = jwt.sign({
+          id: admin.id,
+          phoneNumber: admin.phoneNumber,
+          role: admin.role,
+        });
+        return res.status(200).json({
+          message: "ok",
+          data: {
+            id: admin.id,
+            phoneNumber: admin.phoneNumber,
+            role: admin.role,
+          },
+          token: token,
+        });
+      } else {
+        return res.status(400).json({ message: "user not found !" });
+      }
+    } else {
+      return next(new BadRequestError(400, "Invalid login or Password !"));
     }
   }
 
-
-
   async profile(req, res, next) {
-    
+    try {
+      const { id, role, phoneNumber } = req.user;
+      if (role != "client") {
+        return res.status(400).json({ message: "you have no permission !" });
+      }
 
-  try {
-    const {id,role,phoneNumber } = req.user;
-    if (role !="client") {
-       return res.status(400).json({ message: "you have no permission !" });
-    }
-      
-    let client = await new Promise(function (resolve, reject) {
-      db.query(
-        `SELECT * FROM client WHERE id=${id};`,
-        function (err, results, fields) {
-         
-          if (err) {
-            console.log(err);
-            resolve(null);
-            return null;
+      let client = await new Promise(function (resolve, reject) {
+        db.query(
+          `SELECT * FROM client WHERE id=${id};`,
+          function (err, results, fields) {
+            if (err) {
+              console.log(err);
+              resolve(null);
+              return null;
+            }
+            return resolve(results[0]);
           }
-          return resolve(results[0]);
-        }
-      );
-    });
+        );
+      });
 
-
-    
       return res.status(200).json({
         message: "success",
         data: client,
       });
-  } catch (error) {
-    return next( new InternalServerError(500,error));
-  }
-
-        
-    
-
-
-
-   
+    } catch (error) {
+      return next(new InternalServerError(500, error));
+    }
   }
 }
 function generateOTP() {
