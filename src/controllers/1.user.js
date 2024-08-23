@@ -83,7 +83,6 @@ class Users {
         } catch (error) {}
       }
     } else {
-    
       return next(new BadRequestError(400, "you must enter phone number !"));
     }
   }
@@ -96,7 +95,7 @@ class Users {
     try {
       userVerify = await new Promise(function (resolve, reject) {
         db.query(
-          `SELECT code,created_time FROM Otp WHERE client_id=${req.user.id} and id=${id};`,
+          `SELECT code,created_time FROM Otp WHERE client_id=${req.user.id} and id=${id} and used="false";`,
           function (err, results, fields) {
             if (err) {
               resolve(null);
@@ -124,6 +123,19 @@ class Users {
       userVerify.otp === otpCode &&
       calculateTimeDifference(userVerify.created_time) < 120
     ) {
+
+      await new Promise(function (resolve, reject) {
+        db.query(
+          `update Otp set used="TRUE"  WHERE id='${id}';`,
+          function (err, results, fields) {
+            if (err) {
+              resolve(null);
+              
+            }
+             resolve(results);
+          }
+        );
+      });
       const user = await new Promise(function (resolve, reject) {
         db.query(
           `SELECT * FROM Client WHERE id='${id}';`,
@@ -230,9 +242,7 @@ class Users {
 }
 function generateOTP() {
   let otp = "";
-  const digits = "0123456789";
   for (let i = 0; i < 6; i++) {
-    // otp += digits[Math.floor(Math.random() * 10)];
     otp += Math.floor(Math.random() * 10);
   }
   return otp;
