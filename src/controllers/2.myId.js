@@ -141,7 +141,7 @@ class Myid {
       
             await new Promise(function (resolve, reject) {
               db.query(
-                `update client set fullname="${clientData.fullname}",passport="${clientData.passport}",birth_date="${clientData.birth_date}"   WHERE id=${req.user.id};`,
+                `update client set fullname="${clientData.fullname}",passport="${clientData.passport}",birth_date="${clientData.birth_date}",verified="True"   WHERE id=${req.user.id};`,
                 function (err, results, fields) {
                   if (err) {
                     console.log(err);
