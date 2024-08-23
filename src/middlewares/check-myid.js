@@ -68,11 +68,12 @@ module.exports = async (req, res, next) => {
         ).replaceAll("ʻ", "'"),
         passport: req.body.passport,
         birth_date: req.body.birth_date,
+        pinfl :  myIdData.profile.common_data.pinfl
       };
 
       await new Promise(function (resolve, reject) {
         db.query(
-          `update client set fullname="${clientData.fullname}",passport="${clientData.passport}",birth_date="${clientData.birth_date}",verified="True"   WHERE id=${req.user.id};`,
+          `update client set fullname="${clientData.fullname}",passport="${clientData.passport}",pinfl="${clientData.pinfl}",birth_date="${clientData.birth_date}",verified="True"   WHERE id=${req.user.id};`,
           function (err, results, fields) {
             if (err) {
               console.log(err);
