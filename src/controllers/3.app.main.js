@@ -22,65 +22,59 @@ class App {
     console.log("req.user", req.user);
 
     if (req.user.role === "SuperAdmin") {
-       let zayavkalar;
-       try {
-         zayavkalar = await new Promise(function (resolve, reject) {
-           db.query(
-             `SELECT * FROM Ariza`,
-             function (err, results, fields) {
-               if (err) {
-                 resolve(null);
-                 return null;
-               }
-               resolve(results);
-             }
-           );
-         });
-
-         if (!zayavkalar) {
-           return next(new NotFoundError(400));
-         }
-         console.log("🚀 ~ App ~ getAll ~    all zayavkalar :");
-         return res.status(200).json({
-           success: true,
-           allZayavkalar: zayavkalar,
-         });
-       } catch (error) {
-         console.log(error);
-       }
-     
-    }
-    else if(req.user.role == "client"){
-       let zayavkalar;
-    try {
-      zayavkalar = await new Promise(function (resolve, reject) {
-        db.query(
-          `SELECT * FROM Ariza where client_id=${req.user.userId}`,
-          function (err, results, fields) {
+      let zayavkalar;
+      try {
+        zayavkalar = await new Promise(function (resolve, reject) {
+          db.query(`SELECT * FROM Ariza`, function (err, results, fields) {
             if (err) {
               resolve(null);
               return null;
             }
             resolve(results);
-          }
-        );
-      });
+          });
+        });
 
-      if (!zayavkalar) {
-        return next(new NotFoundError(400,"No zayavka found !"));
-      }
+        if (!zayavkalar) {
+          return next(new NotFoundError(400));
+        }
+        console.log("🚀 ~ App ~ getAll ~    all zayavkalar :");
         return res.status(200).json({
           success: true,
           allZayavkalar: zayavkalar,
         });
-    } catch (error) {
-      console.log(error);
-    }}
+      } catch (error) {
+        console.log(error);
+      }
+    } else if (req.user.role == "client") {
+      let zayavkalar;
+      try {
+        zayavkalar = await new Promise(function (resolve, reject) {
+          db.query(
+            `SELECT * FROM Ariza where client_id=${req.user.userId}`,
+            function (err, results, fields) {
+              if (err) {
+                resolve(null);
+                return null;
+              }
+              resolve(results);
+            }
+          );
+        });
+
+        if (!zayavkalar) {
+          return next(new NotFoundError(400, "No zayavka found !"));
+        }
+        return res.status(200).json({
+          success: true,
+          allZayavkalar: zayavkalar,
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
+  }
 
-  async  arizaAll(req, res, next) {
- 
-
+  async arizaAll(req, res, next) {
     if (req.user.role != "client") {
       return res.status(403).json({
         message: "You are not allowed to this url !",
@@ -111,17 +105,59 @@ class App {
       });
     } catch (error) {}
   }
+  async contractsAll(req, res, next) {
+    if (req.user.role != "client") {
+      return res.status(403).json({
+        message: "You are not allowed to this url !",
+      });
+    }
+    let contractsAll;
+    
+    try {
+      let  client = await new Promise(function (resolve, reject) {
+         db.query(
+           `SELECT * FROM Client where id=${req.user.id} `,
+           function (err, results, fields) {
+             if (err) {
+               resolve(null);
+               return null;
+             }
+             resolve(results[results.length-1]);
+           }
+         );
+       });
+      contractsAll = await new Promise(function (resolve, reject) {
+        db.query(
+          `SELECT * FROM Zayavka where passport=${client.passport} and status in ('finished','paid')`,
+          function (err, results, fields) {
+            if (err) {
+              resolve(null);
+              return null;
+            }
+            resolve(results);
+          }
+        );
+      });
+
+      if (!contractsAll) {
+        return next(new NotFoundError(400));
+      }
+      console.log("🚀 ~ App ~ get All contracts :");
+      return res.status(200).json({
+        message: 'success',
+        data: contractsAll,
+      });
+    } catch (error) {}
+  }
 
   async newZayavka(req, res, next) {
+    if (req.user.role != "client") {
+      return next(
+        new ForbiddenError(403, "You do not have permission to this page.")
+      );
+    }
 
-
-     if (req.user.role != "client") {
-       return next(
-         new ForbiddenError(403, "You do not have permission to this page.")
-       );
-     }
-
-   let  newZayavka;
+    let newZayavka;
     try {
       let user = await new Promise(function (resolve, reject) {
         db.query(
@@ -174,11 +210,11 @@ class App {
   }
 
   async createAriza(req, res, next) {
-     if (req.user.role != "client") {
-       return next(
-         new ForbiddenError(403, "You do not have permission to this page !")
-       );
-     }
+    if (req.user.role != "client") {
+      return next(
+        new ForbiddenError(403, "You do not have permission to this page !")
+      );
+    }
 
     try {
       let user = await new Promise(function (resolve, reject) {
@@ -292,14 +328,13 @@ class App {
     }
   }
   async PostScoring(req, res, next) {
+    console.log("🚀 ~ App ~ PostScoring ~ ");
 
-     console.log("🚀 ~ App ~ PostScoring ~ ")
-
-     if (req.user.role != "client") {
-       return next(
-         new ForbiddenError(403, "You do not have permission to this page.")
-       );
-     }
+    if (req.user.role != "client") {
+      return next(
+        new ForbiddenError(403, "You do not have permission to this page.")
+      );
+    }
     try {
       let {
         id,
@@ -434,7 +469,6 @@ class App {
         db.query(
           update3ZayavkaFunc({
             ...req.body,
-           
           }),
           function (err, results, fields) {
             console.log(err);
