@@ -157,7 +157,7 @@ class Myid {
       
 
           const token = jwt.sign({
-            userId: user.id,
+            id: user.id,
             phoneNumber: user.phoneNumber,
             role: user.role,
           });

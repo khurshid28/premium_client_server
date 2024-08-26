@@ -1,2 +1,3 @@
 /api/v1/myid/___POST___1720190538724___InternalServerError___AxiosError: timeout of 10000ms exceeded
 /api/v1/myid/___POST___1720190637970___InternalServerError___AxiosError: timeout of 10000ms exceeded
+/api/v1/user/profile___GET___1724499755640___InternalServerError___TypeError: Cannot destructure property 'id' of 'req.user' as it is undefined.

@@ -213,6 +213,8 @@ class Users {
   async profile(req, res, next) {
     try {
       const { id, role, phoneNumber } = req.user;
+      console.log('user:::',req.user);
+      
       if (role != "client") {
         return res.status(400).json({ message: "you have no permission !" });
       }

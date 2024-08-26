@@ -48,6 +48,7 @@ app.use(logger);
 app.get("/", (req, res) => res.send("premium pay "));
 
 const fs = require("fs");
+const jwt = require("./src/utils/jwt.js");
 
 function imageToBase64(filePath) {
   return new Promise((resolve, reject) => {
@@ -68,6 +69,9 @@ function imageToBase64(filePath) {
 // starting server
 app.listen(PORT, async () => {
   console.log((`server ready on port:${PORT}` ));
+
+   
+   
 });
 
 require("./src/utils/capitalizeFirstLetter");

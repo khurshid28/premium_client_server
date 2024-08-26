@@ -24,7 +24,7 @@ module.exports = async (req, res, next) => {
       return next(new AuthorizationError(401, "No token provided"));
     }
 
-    let { userId, phoneNumber,role} = jwt.verify(token);
+    let { id, phoneNumber,role} = jwt.verify(token);
  
     console.log("role", role);
 
@@ -32,7 +32,7 @@ module.exports = async (req, res, next) => {
     if(role === "client") {
          user = await new Promise(function (resolve, reject) {
            db.query(
-             `SELECT * from Client WHERE id='${userId}' and phoneNumber='${phoneNumber}'`,
+             `SELECT * from Client WHERE id='${id}' and phoneNumber='${phoneNumber}'`,
              function (err, results, fields) {
                if (err) {
                  resolve(null);
@@ -50,7 +50,7 @@ module.exports = async (req, res, next) => {
     else if (role == "SuperAdmin") {
          user = await new Promise(function (resolve, reject) {
            db.query(
-             `SELECT * from SuperAdmin WHERE id='${userId}'`,
+             `SELECT * from SuperAdmin WHERE id='${id}'`,
              function (err, results, fields) {
                if (err) {
                  resolve(null);
@@ -68,7 +68,7 @@ module.exports = async (req, res, next) => {
     console.log("user:",user);
     if (user) {
       req.user = {
-        userId: user["id"],
+        id: user["id"],
         phoneNumber: user["phoneNumber"],
         role: user["role"],
       };
