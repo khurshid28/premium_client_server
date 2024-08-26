@@ -73,7 +73,10 @@ max_age int default 64,
 min_age int default 18,
 created_time timestamp default current_timestamp,
 types json default ("['rasmiy daromad','karta','pensioner']"),
-blocked_regions json default ("['03']")
+blocked_regions json default ("['03']"),
+
+client_timeout int default 300,
+merchant_timeout int default 120,
 );
 
 -- insert into Bank (name,types,blocked_regions,months) values ('davr',JSON_ARRAY("rasmiy daromad"),JSON_ARRAY('03'),JSON_OBJECT("3",5,"6",10,"9",15,"12",19));
